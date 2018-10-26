@@ -83,6 +83,10 @@ public class Field {
         return hasTresure;
     }
 
+    public void collectTreasure() {
+        hasTresure = false;
+    }
+
     public int getI() {
         return i;
     }

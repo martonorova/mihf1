@@ -10,19 +10,23 @@ public class Labyrinth {
     private int numTreasure;
     private LinkedList<Field> objectiveFields = new LinkedList<>();
 
-    private HashMap<Integer, SearchGraphNode> expandedNodes = new HashMap<>();
+   // private HashMap<Integer, SearchGraphNode> expandedNodes = new HashMap<>();
+    private HashMap<Field, SearchGraphNode> expandedNodes = new HashMap<>();
+
+
     private HashMap<Integer, SearchGraphNode> frontierNodes = new HashMap<>();
+
 
     public void loadFieldMtx() {
         Scanner scanner;
-//        try {
+        //try {
             scanner = new Scanner(System.in);
-            //scanner = new Scanner(new File("input1.txt"));
+            //scanner = new Scanner(new File("input3.txt"));
 
-//        } catch (FileNotFoundException ex) {
-//            ex.printStackTrace();
-//            return;
-//        }
+      //} catch (FileNotFoundException ex) {
+      //      ex.printStackTrace();
+      //      return;
+      //  }
 
 
         while (scanner.hasNext()) {
@@ -79,7 +83,7 @@ public class Labyrinth {
 
     public void start() {
         Field exitField = getField(fieldMtx.size() - 1, fieldMtx.get(0).size() - 1);
-        objectiveFields.add(exitField);
+        //objectiveFields.addLast(exitField);
         runTreasureHunt(getField(0, 0), exitField);
     }
 
@@ -96,8 +100,9 @@ public class Labyrinth {
 
         SearchGraphNode actualNode = root;
 
-        while (!actualNode.getActualField().equals(exitField)) {
+        while (!actualNode.getActualField().equals(exitField) || !objectiveFields.isEmpty()) {
             //System.out.println(actualNode.getActualField());
+            //System.out.println(actualNode);
             int minDist = Integer.MAX_VALUE;
 
             for (Integer nodeId : frontierNodes.keySet()) {
@@ -143,6 +148,7 @@ public class Labyrinth {
     private void expandNode(SearchGraphNode node) {
 
         if (node.getActualField().hasTresure()) {
+            node.getActualField().collectTreasure();
             objectiveFields.removeFirst();
             node.setTreasureFound(true);
             expandedNodes.clear();
@@ -151,25 +157,42 @@ public class Labyrinth {
 
         frontierNodes.remove(node.getId());
 
-        expandedNodes.put(node.getId(), node);
+       // expandedNodes.put(node.getId(), node);
+        expandedNodes.put(node.getActualField(), node);
+
+//        node.getActualField().getNeighbours().forEach(neighbour -> {
+//
+//            SearchGraphNode possibleFrontierNode = new SearchGraphNode(
+//                    node,
+//                    neighbour,
+//                    node.getDistanceToHere() + 1,
+//                    approximateDistToNextObjective(neighbour));
+//
+//            if (!expandedNodes.containsKey(possibleFrontierNode.getId()) && !frontierNodes.containsKey(possibleFrontierNode.getId())) {
+//                frontierNodes.put(possibleFrontierNode.getId(), possibleFrontierNode);
+//            }
+//        });
 
         node.getActualField().getNeighbours().forEach(neighbour -> {
+            if (!expandedNodes.containsKey(neighbour)) {
 
-            SearchGraphNode possibleFrontierNode = new SearchGraphNode(
+                SearchGraphNode possibleFrontierNode = new SearchGraphNode(
                     node,
                     neighbour,
                     node.getDistanceToHere() + 1,
                     approximateDistToNextObjective(neighbour));
 
-            if (!expandedNodes.containsKey(possibleFrontierNode.getId()) && !frontierNodes.containsKey(possibleFrontierNode.getId())) {
                 frontierNodes.put(possibleFrontierNode.getId(), possibleFrontierNode);
             }
-        });
+        } );
 
     }
 
     private int approximateDistToNextObjective(Field fromField) {
-        return fromField.getManhattanDistFrom(objectiveFields.get(0));
+        if (!objectiveFields.isEmpty()) {
+            return fromField.getManhattanDistFrom(objectiveFields.getFirst());
+        }
+        return fromField.getManhattanDistFrom(getField(fieldMtx.size() - 1, fieldMtx.get(0).size() - 1));
     }
 
     private void createFieldGraph() {

@@ -63,4 +63,15 @@ public class SearchGraphNode {
     public void setApproxDistanceToNextObjective(int approxDistanceToNextObjective) {
         this.approxDistanceToNextObjective = approxDistanceToNextObjective;
     }
+
+    @Override
+    public String toString() {
+
+        return String.format("ID: %d, parentID: %d, actualField: %s, distToHere: %d, distToObj: %d",
+                getId(),
+                parentNode != null ? parentNode.getId() : -1,
+                getActualField(),
+                getDistanceToHere(),
+                getApproxDistanceToNextObjective());
+    }
 }
