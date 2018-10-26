@@ -4,13 +4,15 @@ public class SearchGraphNode {
     private static int idCounter = 0;
     private int id;
 
-    private Field previousField;
+    private SearchGraphNode parentNode;
     private Field actualField;
     private int distanceToHere;
     private int approxDistanceToNextObjective;
 
-    public SearchGraphNode(Field previousField, Field actualField, int distanceToHere, int approxDistanceToNextObjective) {
-        this.previousField = previousField;
+    private boolean treasureFound;
+
+    public SearchGraphNode(SearchGraphNode parentNode, Field actualField, int distanceToHere, int approxDistanceToNextObjective) {
+        this.parentNode= parentNode;
         this.actualField = actualField;
         this.distanceToHere = distanceToHere;
         this.approxDistanceToNextObjective = approxDistanceToNextObjective;
@@ -18,16 +20,24 @@ public class SearchGraphNode {
         this.id = idCounter++;
     }
 
+    public boolean isTreasureFound() {
+        return treasureFound;
+    }
+
+    public void setTreasureFound(boolean treasureFound) {
+        this.treasureFound = treasureFound;
+    }
+
     public int getId() {
         return id;
     }
 
-    public Field getPreviousField() {
-        return previousField;
+    public SearchGraphNode getParentNode() {
+        return parentNode;
     }
 
-    public void setPreviousField(Field previousField) {
-        this.previousField = previousField;
+    public void setParentNode(SearchGraphNode parentNode) {
+        this.parentNode = parentNode;
     }
 
     public Field getActualField() {

@@ -9,10 +9,6 @@ public class Field {
 
     private boolean hasTresure;
 
-//    private boolean hasNorthWall;
-//    private boolean hasEastWall;
-//    private boolean hasSouthWall;
-//    private boolean hasWestWall;
     private List<Field> neighbours;
     private int layoutCode;
 
@@ -21,12 +17,26 @@ public class Field {
         this.j = j;
         this.layoutCode = layoutCode;
 
+        if ((layoutCode >> 4 & 1) == 1) {
+            hasTresure = true;
+        }
+
     }
 
     public void addNeighbour(Field neighbour) {
 
         //ha korbe fal vagy nem egymas melletti mezok
-        if ((layoutCode & 1111) == 1 || this.getManhattanDistFrom(neighbour) != 1) {
+//        if ((layoutCode & 1111) == 1 || this.getManhattanDistFrom(neighbour) != 1) {
+//            return;
+//        }
+
+        boolean hasAllWalls = true;
+        for (int i = 0; i < 4; i++) {
+            if ((layoutCode >> i & 1) == 0) {
+                hasAllWalls = false;
+            }
+        }
+        if (hasAllWalls) {
             return;
         }
 
@@ -35,7 +45,7 @@ public class Field {
         }
 
         //ha eszaki szomszed
-        if (this.getI() < neighbour.getI() && this.getJ() == neighbour.getJ()) {
+        if (this.getI() > neighbour.getI() && this.getJ() == neighbour.getJ()) {
 
             //ha nincs ennek a mezonek eszaki fala
             if ((this.layoutCode & 1) != 1) {
@@ -49,7 +59,7 @@ public class Field {
                 neighbours.add(neighbour);
             }
             //ha deli szomszed
-        } else if (this.getI() > neighbour.getI() && this.getJ() == neighbour.getJ()) {
+        } else if (this.getI() < neighbour.getI() && this.getJ() == neighbour.getJ()) {
 
             // nincs ennek a mezonek deli fala
             if ((this.layoutCode >> 2 & 1) != 1) {
@@ -81,21 +91,12 @@ public class Field {
         return j;
     }
 
-//    public boolean hasNorthWall() {
-//        return hasNorthWall;
-//    }
-//
-//    public boolean hasEastWall() {
-//        return hasEastWall;
-//    }
-//
-//    public boolean hasSouthWall() {
-//        return hasSouthWall;
-//    }
-//
-//    public boolean hasWestWall() {
-//        return hasWestWall;
-//    }
+    public List<Field> getNeighbours() {
+        if (neighbours == null) {
+            throw new RuntimeException("Neighbours of this field are not set " + this);
+        }
+        return neighbours;
+    }
 
     @Override
     public String toString() {
