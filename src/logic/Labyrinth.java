@@ -10,19 +10,19 @@ public class Labyrinth {
     private int numTreasure;
     private LinkedList<Field> objectiveFields = new LinkedList<>();
 
-    private HashMap<Field, SearchGraphNode> expandedNodes = new HashMap<>();
-    private List<SearchGraphNode> frontierNodes = new ArrayList<>();
+    private HashMap<Integer, SearchGraphNode> expandedNodes = new HashMap<>();
+    private HashMap<Integer, SearchGraphNode> frontierNodes = new HashMap<>();
 
     public void loadFieldMtx() {
         Scanner scanner;
-        try {
+//        try {
+            scanner = new Scanner(System.in);
+            //scanner = new Scanner(new File("input1.txt"));
 
-            scanner = new Scanner(new File("input1.txt"));
-
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-            return;
-        }
+//        } catch (FileNotFoundException ex) {
+//            ex.printStackTrace();
+//            return;
+//        }
 
 
         while (scanner.hasNext()) {
@@ -57,8 +57,6 @@ public class Labyrinth {
 
         setOrderOfTreasures(getField(0, 0));
         createFieldGraph();
-
-        System.out.println("LOAD DONE");
 
     }
 
@@ -98,15 +96,14 @@ public class Labyrinth {
 
         SearchGraphNode actualNode = root;
 
-
-        System.out.println("BEFORE WHILE IN RUN");
-        int valami = 0;
-
         while (!actualNode.getActualField().equals(exitField)) {
-            System.out.println(actualNode.getActualField());
+            //System.out.println(actualNode.getActualField());
             int minDist = Integer.MAX_VALUE;
 
-            for (SearchGraphNode frontierNode : frontierNodes) {
+            for (Integer nodeId : frontierNodes.keySet()) {
+
+                SearchGraphNode frontierNode = frontierNodes.get(nodeId);
+
                 int approximateDistWithThisNode = frontierNode.getDistanceToHere() + frontierNode.getApproxDistanceToNextObjective();
                 if (approximateDistWithThisNode < minDist) {
                     minDist = approximateDistWithThisNode;
@@ -118,8 +115,6 @@ public class Labyrinth {
 
         }
 
-        System.out.println("AFTER WHILE IN RUN");
-
         // TODO vegigertunk
         printResult(actualNode);
 
@@ -129,15 +124,12 @@ public class Labyrinth {
         List<SearchGraphNode> result = new ArrayList<>();
 
         SearchGraphNode actualNode = endNode;
-        System.out.println("BEFORE WHILE IN PRINT");
 
         while (actualNode.getParentNode() != null) {
             result.add(actualNode);
             actualNode = actualNode.getParentNode();
 
         }
-
-        System.out.println("AFTER WHILE IN PRINT");
 
         for (int i = result.size() - 1; i >= 0 ; i--) {
             System.out.println(result.get(i).getActualField());
@@ -153,11 +145,13 @@ public class Labyrinth {
         if (node.getActualField().hasTresure()) {
             objectiveFields.removeFirst();
             node.setTreasureFound(true);
+            expandedNodes.clear();
+            frontierNodes.clear();
         }
 
-        frontierNodes.remove(node);
+        frontierNodes.remove(node.getId());
 
-        expandedNodes.put(node.getActualField(), node);
+        expandedNodes.put(node.getId(), node);
 
         node.getActualField().getNeighbours().forEach(neighbour -> {
 
@@ -167,16 +161,14 @@ public class Labyrinth {
                     node.getDistanceToHere() + 1,
                     approximateDistToNextObjective(neighbour));
 
-            if (!expandedNodes.containsKey(neighbour) && !frontierNodes.contains(possibleFrontierNode)) {
-                frontierNodes.add(possibleFrontierNode);
+            if (!expandedNodes.containsKey(possibleFrontierNode.getId()) && !frontierNodes.containsKey(possibleFrontierNode.getId())) {
+                frontierNodes.put(possibleFrontierNode.getId(), possibleFrontierNode);
             }
         });
 
     }
 
     private int approximateDistToNextObjective(Field fromField) {
-        //TODO visszaallitani
-        //getField(fieldMtx.size() - 1, fieldMtx.get(0).size() - 1)
         return fromField.getManhattanDistFrom(objectiveFields.get(0));
     }
 

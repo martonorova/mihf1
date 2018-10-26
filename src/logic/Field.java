@@ -100,6 +100,6 @@ public class Field {
 
     @Override
     public String toString() {
-        return String.format("(%d,%d)", i, j);
+        return String.format("%d %d", i, j);
     }
 }
